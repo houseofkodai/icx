@@ -1,5 +1,5 @@
 var APP_PREFIX = 'ICX'
-var VERSION = '0.5'
+var VERSION = '0.6'
 var CACHE_NAME = APP_PREFIX + VERSION
 var URLS = [
   '/icx/',
