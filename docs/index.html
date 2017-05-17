@@ -3,6 +3,7 @@
 <head>
  <title>GCM Push Subscription</title>
  <link rel="canonical" href="https://houseofkodai.github.io/icx/" />
+ 
  <link rel="manifest" href="/icx/manifest.json">
 </head>
 <body>
@@ -19,6 +20,13 @@ function log(s) {
   } else {
     console.log(s);
   };
+}
+
+function rejectfn(s) {
+  return (function(e) {
+    log(s+e);
+    console.log(s,e);
+  })
 }
 
 function getSubscription() {
@@ -43,7 +51,7 @@ function subscribe() {
   }).then(function(subscription) {
     log('subscription.endpoint = '+ subscription.endpoint);
     console.log('Subscribed', subscription.endpoint);
-  }).then(setUnsubscribeButton);
+  }).then(setUnsubscribeButton, rejectfn('registration.pushManager.subscribe\n '));
 }
 
 function unsubscribe() {
@@ -53,7 +61,7 @@ function unsubscribe() {
         log('Unsubscribed '+ subscription.endpoint);
         console.log('Unsubscribed', subscription.endpoint);
       });
-  }).then(setSubscribeButton);
+  }).then(setSubscribeButton, rejectfn('subscription.unsubscribe\n '));
 }
 
 var onload = function() {
@@ -63,7 +71,7 @@ var onload = function() {
     navigator.serviceWorker.register('/icx/sw.js', {scope: '/icx/'}).then(function() {
       log('service worker registered');
       btnSub.removeAttribute('disabled');
-    }, function(){log('service worker not available')});
+    }, rejectfn('serviceWorker.register\n '));
     getSubscription().then(function(subscription) {
       if (subscription) {
         log('Already subscribed\n'+JSON.stringify(subscription.endpoint));
