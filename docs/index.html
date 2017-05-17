@@ -67,7 +67,9 @@ function unsubscribe() {
 }
 
 var onload = function() {
+  el.btnSub.textContent = 'loading...'
   log('onload');
+  log(navigator.appVersion);
   el.btnSub = document.getElementById('btnSub');
   if (navigator.serviceWorker) {
     navigator.serviceWorker.register('/icx/sw.js', {scope: '/icx/'}).then(function() {
