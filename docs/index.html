@@ -3,7 +3,7 @@
 <head>
  <title>GCM Push Subscription</title>
  <link rel="canonical" href="https://houseofkodai.github.io/icx/" />
- 
+ <link rel="icon" href="/icx/favicon.ico">
  <link rel="manifest" href="/icx/manifest.json">
 </head>
 <body>
@@ -24,7 +24,7 @@ function log(s) {
 
 function rejectfn(s) {
   return (function(e) {
-    log(s+e);
+    log(s+'\n  '+e);
     console.log(s,e);
   })
 }
@@ -37,31 +37,33 @@ function getSubscription() {
 
 function setSubscribeButton() {
   el.btnSub.onclick = subscribe;
-  el.btnSub.textContent = 'Subscribe!';
+  el.btnSub.textContent = 'Subscribe';
 }
 
 function setUnsubscribeButton() {
   el.btnSub.onclick = unsubscribe;
-  el.btnSub.textContent = 'Unsubscribe!';
+  el.btnSub.textContent = 'Unsubscribe';
 }
 
 function subscribe() {
+  log('subscribe start');
   navigator.serviceWorker.ready.then(function(registration) {
     return registration.pushManager.subscribe({ userVisibleOnly: true });
   }).then(function(subscription) {
     log('subscription.endpoint = '+ subscription.endpoint);
     console.log('Subscribed', subscription.endpoint);
-  }).then(setUnsubscribeButton, rejectfn('registration.pushManager.subscribe\n '));
+  }).then(setUnsubscribeButton, rejectfn('pushManager.subscribe'));
 }
 
 function unsubscribe() {
+  log('unsubscribe start');
   getSubscription().then(function(subscription) {
     return subscription.unsubscribe()
       .then(function() {
         log('Unsubscribed '+ subscription.endpoint);
         console.log('Unsubscribed', subscription.endpoint);
       });
-  }).then(setSubscribeButton, rejectfn('subscription.unsubscribe\n '));
+  }).then(setSubscribeButton, rejectfn('subscription.unsubscribe'));
 }
 
 var onload = function() {
@@ -71,7 +73,7 @@ var onload = function() {
     navigator.serviceWorker.register('/icx/sw.js', {scope: '/icx/'}).then(function() {
       log('service worker registered');
       btnSub.removeAttribute('disabled');
-    }, rejectfn('serviceWorker.register\n '));
+    }, rejectfn('serviceWorker.register'));
     getSubscription().then(function(subscription) {
       if (subscription) {
         log('Already subscribed\n'+JSON.stringify(subscription.endpoint));
