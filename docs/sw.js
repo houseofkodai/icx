@@ -1,9 +1,8 @@
 var APP_PREFIX = 'ICX'
-var VERSION = '0.4'
+var VERSION = '0.5'
 var CACHE_NAME = APP_PREFIX + VERSION
 var URLS = [
   '/icx/',
-  '/icx/manifest.json',
   '/icx/index.html'
 ]
 
