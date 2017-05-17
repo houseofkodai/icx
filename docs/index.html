@@ -1,23 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>Indic Character eXchange</title>
+ <title>GCM Push Subscription</title>
  <link rel="canonical" href="https://houseofkodai.github.io/icx/" />
- <style type="text/css">
-*{
-  margin: 0;
-  background-color: #F5F4F0;
-  font-family: Georgia, serif;
-}
- </style>
  <link rel="manifest" href="/icx/manifest.json">
 </head>
 <body>
- <h1>Indic Character eXchange</h1>
- <script>
-if (navigator.serviceWorker) {
-    navigator.serviceWorker.register('/icx/sw.js', {scope: '/icx/'})
+ <button id='btnSub' disabled=true></button>
+ <pre id="log"></pre>
+<script>
+var el={};
+function log(s) {
+  if (!el.log) {
+    el.log = document.getElementById('log');
+  }
+  if (el.log) {
+    el.log.innerText += (el.log.innerText.length ? '\n' : '') + s;
+  } else {
+    console.log(s);
+  };
 }
- </script>
+
+function getSubscription() {
+  return navigator.serviceWorker.ready.then(function(registration) {
+      return registration.pushManager.getSubscription();
+  });
+}
+
+function setSubscribeButton() {
+  el.btnSub.onclick = subscribe;
+  el.btnSub.textContent = 'Subscribe!';
+}
+
+function setUnsubscribeButton() {
+  el.btnSub.onclick = unsubscribe;
+  el.btnSub.textContent = 'Unsubscribe!';
+}
+
+function subscribe() {
+  navigator.serviceWorker.ready.then(function(registration) {
+    return registration.pushManager.subscribe({ userVisibleOnly: true });
+  }).then(function(subscription) {
+    log('subscription.endpoint = '+ subscription.endpoint);
+    console.log('Subscribed', subscription.endpoint);
+  }).then(setUnsubscribeButton);
+}
+
+function unsubscribe() {
+  getSubscription().then(function(subscription) {
+    return subscription.unsubscribe()
+      .then(function() {
+        log('Unsubscribed '+ subscription.endpoint);
+        console.log('Unsubscribed', subscription.endpoint);
+      });
+  }).then(setSubscribeButton);
+}
+
+var onload = function() {
+  log('onload');
+  el.btnSub = document.getElementById('btnSub');
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.register('/icx/sw.js', {scope: '/icx/'}).then(function() {
+      log('service worker registered');
+      btnSub.removeAttribute('disabled');
+    }, function(){log('service worker not available')});
+    getSubscription().then(function(subscription) {
+      if (subscription) {
+        log('Already subscribed\n'+JSON.stringify(subscription.endpoint));
+        console.log('Already subscribed', subscription.endpoint);
+        setUnsubscribeButton();
+      } else {
+        setSubscribeButton();
+      }
+    });
+  }
+};
+window.onload = onload;
+</script>
 </body>
 </html>
